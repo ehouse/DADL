@@ -8,6 +8,7 @@ while () {
 	# Variables
 	my @array;
 	my $total = 0;
+
 	# Read
 	print(">>");
 	my $input = <>;
@@ -44,18 +45,9 @@ while () {
 }
 
 sub dice{
-	# $_[0] = num of dice
-	# $_[1] = sides of dice
-
-	my $sides = $_[1];
+	my ($num_dice, $sides) = @_;
+	$num_dice ||= 1;
 	my $roll = 0;
-	my $num_dice;
-
-	if(!defined($_[0])){
-		$num_dice = 1;
-	}else{
-		$num_dice = $_[0];
-	}
 
 	for(my $x=0; $x < $num_dice; $x++){
 		$roll += int(rand($sides))+1;
