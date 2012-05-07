@@ -2,6 +2,7 @@
 use warnings;
 use strict;
 
+my %stats;
 
 # Read, Eval, loop
 while () {
@@ -9,12 +10,14 @@ while () {
 	my @array;
 	my $total = 0;
 
-	# Read
+	# Read user input
 	print(">>");
 	my $input = <>;
 	chomp($input);
 
-	# Eval
+	# Eval section
+
+	# Quit Program
 	last if ($input eq 'quit') || ($input eq 'q') || ($input eq 'exit');
 
 	# Dice Roller
@@ -22,7 +25,6 @@ while () {
 		# Replace All Dice rolls
 		$input =~ s/(\d+)?(d)(\d+)/dice($1,$3)/geis;
 		@array = ($input =~ m/(\d+|\+)/g);
-
 		foreach my $counter (0..$#array){
 			if($array[$counter] =~ m/\+/g){
 				$total += $array[$counter - 1];
@@ -33,12 +35,27 @@ while () {
 				$total -= $array[$counter + 1];
 			}
 		}
-	}
-
-	# print 
-	if($input){
 		printf("(%d) %s\n",$total,$input);
 	}
+
+	# Stat Counter
+	if($input =~ m/^add\s/){
+		$input =~ s/^add\s+//;
+		if($input =~ m/(\w+)=(\d+)/){
+			$stats{$1}=$2;
+		}
+	}
+
+	# Stat Printer
+	if($input =~ m/^print\s(\w+)/){
+		if(exists($stats{$1})){
+			print("$1 = $stats{$1}\n");
+		}else{
+			print("Stat does not exist\n");
+		}
+	}
+
+	# Clear Screen
 	if($input eq 'clear'){
 		system('clear');
 	}
