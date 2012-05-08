@@ -2,20 +2,22 @@
 use warnings;
 use strict;
 
-my %stats;
+my %store;
+my %runtime = ('cmd' => '>>');
 
 # Read, Eval, loop
 while () {
 	# Variables
-	my @array;
-	my $total = 0;
+	my @array;         # deprecated
+	my $total;     # deprecated
+	my $output;        # String printed to screen
 
 	# Read user input
-	print(">>");
-	my $input = <>;
+	print($runtime{cmd});
+	my $input = <>;    # internal info string, doesn't look pretty like $output
 	chomp($input);
 
-	# Eval section
+	##### Eval section ######
 
 	# Quit Program
 	last if ($input eq 'quit') || ($input eq 'q') || ($input eq 'exit');
@@ -23,30 +25,42 @@ while () {
 	# Dice Roller
 	if($input =~ m/(\d+)?(d)(\d+)/){
 		# Replace All Dice rolls
-		$input =~ s/(\d+)?(d)(\d+)/dice($1,$3)/geis;
-		@array = ($input =~ m/(\d+|\+)/g);
-		foreach my $counter (0..$#array){
-			if($array[$counter] =~ m/\+/g){
-				$total += $array[$counter - 1];
-				$total += $array[$counter + 1];
-			}
-			if($array[$counter] =~ m/\-/g){
-				$total -= $array[$counter - 1];
-				$total -= $array[$counter + 1];
-			}
-		}
-		printf("(%d) %s\n",$total,$input);
+		$input =~ s/(\d+)?d(\d+)/"$1d$2(".dice($1,$2).")"/ge;
+		$output = $input;
+		$input =~ s/\d+d\d+\((\d+)\)/$1/g;
+		print $output."\n";
 	}
 
+	# Arithmetic
+	@array = ($input =~ m/(\d+|\+|\-)/g);
+	$total = $array[0];
+	foreach my $counter (1..$#array){
+		if($array[$counter] =~ m/\+/g){
+			$total += $array[$counter + 1];
+		}
+		if($array[$counter] =~ m/\-/g){
+			$total -= $array[$counter + 1];
+		}
+	}
+	if($total){
+		printf("(%d) %s\n",$total,$input);
+	}else{
+	}
+
+
 	# Stat Counter
-	if($input =~ m/(\w+)\s?=\s?(\w+)/){
-		$stats{$1}=$2;
+	if($input =~ m/(\w+)\s+?=\s+?(\w+)/){
+		if($total){
+			$store{$1}=$total;
+		}else{
+			$store{$1}=$2;
+		}
 	}
 
 	# Stat Printer
 	if($input =~ m/^print\s(\w+)/){
-		if(exists($stats{$1})){
-			print("$1 = $stats{$1}\n");
+		if(exists($store{$1})){
+			print("$1 = $store{$1}\n");
 		}else{
 			print("Stat does not exist\n");
 		}
@@ -60,6 +74,9 @@ while () {
 
 sub dice{
 	my ($num_dice, $sides) = @_;
+	if($num_dice == 0 || $sides == 0){
+		return 0;
+	}
 	$num_dice ||= 1;
 	my $roll = 0;
 
@@ -68,3 +85,5 @@ sub dice{
 	}
 	return $roll;
 }
+
+### End of File
