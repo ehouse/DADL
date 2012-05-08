@@ -7,33 +7,37 @@ my %runtime = ('cmd' => '>>');
 
 # Read, Eval, loop
 while () {
-	# Variables
-	my @array;         # deprecated
-	my $total;     # deprecated
-	my $output;        # String printed to screen
-
+	# Variable Declaration
+	my @array;  # store for information across program
+	
 	# Read user input
 	print($runtime{cmd});
 	my $input = <>;    # internal info string, doesn't look pretty like $output
 	chomp($input);
-
+	
 	##### Eval section ######
-
+	
 	# Quit Program
-	last if ($input eq 'quit') || ($input eq 'q') || ($input eq 'exit');
-
+	last if ($input eq 'quit') || ($input eq 'q');
+	
+	# Clear Screen
+	if($input eq 'clear'){
+		system('clear');
+		next;
+	}
+	
 	# Dice Roller
 	if($input =~ m/(\d+)?(d)(\d+)/){
 		# Replace All Dice rolls
 		$input =~ s/(\d+)?d(\d+)/"$1d$2(".dice($1,$2).")"/ge;
-		$output = $input;
+		my $output = $input;
 		$input =~ s/\d+d\d+\((\d+)\)/$1/g;
 		print $output."\n";
 	}
-
+	
 	# Arithmetic
-	@array = ($input =~ m/(\d+|\+|\-)/g);
-	$total = $array[0];
+	@array = $input =~ m/(\d+|\+|\-)/g;
+	my $total = $array[0];
 	foreach my $counter (1..$#array){
 		if($array[$counter] =~ m/\+/g){
 			$total += $array[$counter + 1];
@@ -46,17 +50,14 @@ while () {
 		printf("(%d) %s\n",$total,$input);
 	}else{
 	}
-
-
+	
 	# Stat Counter
-	if($input =~ m/(\w+)\s+?=\s+?(\w+)/){
+	if($input =~ m/(\w+)\s+?=\s+?(\w+)/g){
 		if($total){
 			$store{$1}=$total;
-		}else{
-			$store{$1}=$2;
 		}
 	}
-
+	
 	# Stat Printer
 	if($input =~ m/^print\s(\w+)/){
 		if(exists($store{$1})){
@@ -64,11 +65,6 @@ while () {
 		}else{
 			print("Stat does not exist\n");
 		}
-	}
-
-	# Clear Screen
-	if($input eq 'clear'){
-		system('clear');
 	}
 }
 
