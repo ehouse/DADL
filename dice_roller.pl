@@ -39,11 +39,8 @@ while () {
 	}
 
 	# Stat Counter
-	if($input =~ m/^add\s/){
-		$input =~ s/^add\s+//;
-		if($input =~ m/(\w+)=(\d+)/){
-			$stats{$1}=$2;
-		}
+	if($input =~ m/(\w+)\s?=\s?(\w+)/){
+		$stats{$1}=$2;
 	}
 
 	# Stat Printer
