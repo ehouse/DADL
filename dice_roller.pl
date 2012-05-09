@@ -27,7 +27,7 @@ while () {
 	}
 	
 	# Dice Roller
-	if($input =~ m/(\d+)?(d)(\d+)/){
+	if($input =~ m/(\d+)?d(\d+)/){
 		# Replace All Dice rolls
 		$input =~ s/(\d+)?d(\d+)/"$1d$2(".dice($1,$2).")"/ge;
 		my $output = $input;
@@ -53,6 +53,10 @@ while () {
 	
 	# Stat Counter
 	if($input =~ m/(\w+)\s+?=\s+?(\w+)/g){
+		if($input =~ m/\={1,}/g){
+			error("Arthmetic");
+			next;
+		}
 		if($total){
 			$store{$1}=$total;
 		}
@@ -66,6 +70,17 @@ while () {
 			print("Stat does not exist\n");
 		}
 	}
+}
+
+sub error{
+	my ($error_code) = @_;
+	printf("ERROR: %s\n",$error_code);
+}
+
+sub crit_error{
+	my ($error_code) = @_;
+	printf("CRITICAL ERROR: %s\n",$error_code);
+	die;
 }
 
 sub dice{
